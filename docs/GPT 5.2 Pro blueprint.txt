@@ -1,0 +1,213 @@
+Here’s the pivot blueprint + what I’d keep vs. archive, based on the current v2c docs/tooling you already have in place.
+
+## 1) What you already have that matches the “don’t reinvent the wheel” pivot
+
+You’re already *mostly there*.
+
+* **Canonical evaluation substrate exists:** per‑day append‑only ledgers (`reports/daily_ledgers/YYYYMMDD_daily_game_ledger.csv`) with core columns `v2c/gemini/grok/gpt/kalshi_mid/actual_outcome` are explicitly the source for EV + Brier analysis. 
+* **You already compute realized EV vs Kalshi mid (and Brier):** the EV definition and the read‑only analysis loop are formalized (edge buckets, PnL units, etc.). 
+* **You already have “sportsbook proxy” plumbing:** `market_proxy` is an *optional* ledger column meant to store sportsbook‑implied home win probs when Kalshi mids are missing, and there’s a safe backfill tool for it from Odds API history.  
+* **You already have meta / hybrid learning R&D:** `learn_hybrid_weights.py` exists to learn simplex weights across calibrated model columns from the master ledger with date‑grouped CV. 
+* **You already have rule‑mining / gating research:** “Scheme D” analysis and threshold sweeps for “home‑rich fade” exist as read‑only tools writing to `reports/ev_rulebooks/` and `reports/thesis_summaries/`. 
+* **And importantly:** v2c is already explicitly a **stats + market ensemble** maker‑only engine (no ladders), producing plans/executions and logs. 
+
+So the “better direction” isn’t a rewrite; it’s: **treat external baselines (books, MoneyPuck, etc.) as candidate predictors, log them cleanly, calibrate them, and trade only the buckets/directions that beat Kalshi after costs**.
+
+## 2) Keep / Modify / Archive
+
+### Keep (core)
+
+* **Daily ledger + EV tooling** (`analyze_ev_vs_kalshi.py`, rolling calibration, EV summaries, rulebook mining). This is your moat. 
+* **Market linkage + plan/log/execute pipeline** (maker-only, no ladders). 
+* **`market_proxy` concept** (but repurpose it from “only when Kalshi missing” → “always capture a sharp-ish consensus snapshot”). 
+
+### Modify (high leverage)
+
+* **Stop asking LLMs to “invent p_true” as the primary engine.** Keep LLM outputs as *one* column among others, but let the ledger tell you when/where they add EV.
+* **Add “external baselines” as first-class columns** (sportsbook consensus, MoneyPuck if you can ingest it reliably).
+* **Automate a rulebook-driven gate** (only trade buckets with historical positive EV vs Kalshi, per league/model/direction). This matches your EV_ANALYSIS playbook. 
+
+### Archive / De‑prioritize (for now)
+
+* Any **ladder-era workflows** or anything that tries to optimize “fancy order shapes” before you have stable, fee-adjusted positive EV. Your own docs already treat ladders as legacy/deprecated. 
+* Heavy bespoke “from scratch” modeling (massive new data feeds) **until** the evaluation loop proves you’ve squeezed the current edge. The roadmap explicitly puts calibration + gating first. 
+
+## 3) The blueprint: “Edge Mining” system that beats Kalshi by construction
+
+### North-star workflow
+
+1. **Capture** (same-day, pre-game, time-stamped) probabilities from:
+
+   * Kalshi mid (price baseline),
+   * sportsbook proxy (Odds API / sharp consensus),
+   * MoneyPuck (optional),
+   * v2c,
+   * LLM specialists (optional).
+2. **Calibrate each source** (per league) using daily ledgers.
+3. **Learn/maintain a “rulebook”**: which (model, edge bucket, direction, regime) historically has positive EV vs Kalshi.
+4. **Trade only those rulebook-approved spots**, maker-only, with micro-bankroll sizing.
+
+This is exactly aligned with the EV analysis doctrine: identify winning buckets → tune thresholds/gating → calibrate → (optionally) meta‑probabilities later. 
+
+---
+
+## 4) Minimal schema upgrades (daily ledger)
+
+Your EV tooling already expects at minimum: `date, league, matchup, actual_outcome, v2c, gemini, grok, gpt, kalshi_mid`. 
+Add these without breaking anything (tools should ignore unknown columns):
+
+**Add new probability columns**
+
+* `book_consensus` (or keep name `market_proxy` but prefer: use it *even when kalshi_mid exists*)
+* `moneypuck` (optional)
+* `p_meta` (optional; only after offline validation)
+
+**Add provenance columns (recommended)**
+
+* `kalshi_mid_ts`
+* `book_consensus_ts`
+* `moneypuck_ts`
+
+**Add quality/confidence columns (your PTCS idea)**
+
+* `ptcs_gpt`, `ptcs_grok`, `ptcs_gemini` (if you want per-model)
+* OR a single `ptcs_research` for “this row’s non-market research quality”
+
+Why timestamps matter: EV vs Kalshi is highly sensitive to **as‑of time**. If you don’t time-align, you’ll accidentally measure lookahead.
+
+## 5) PTCS reintroduction (I agree—*if* it’s used correctly)
+
+Your roadmap already points toward “confidence/PTCS gating” tied to things like injury volatility and sample size. 
+Here’s the version that actually helps Brier + calibration:
+
+### PTCS definition (data quality, not “vibes”)
+
+PTCS ∈ [0, 1] should be computed from *verifiable completeness + freshness*:
+
+* **Completeness components** (examples for NHL):
+
+  * Starting goalies known? (both teams)
+  * Key injuries/GTDs resolved?
+  * Slate-level data packets available + consistent? (standings, schedule, injuries packet) 
+* **Freshness components**
+
+  * Timestamp age of injuries/news digest
+  * Timestamp age of odds snapshot
+* **Consistency components**
+
+  * Cross-source contradictions (goalie different across sources, roster mismatch flags)
+
+### How PTCS is used (this is the important part)
+
+Use PTCS to **shrink** and **widen**:
+
+1. **Shrink overconfident model probs toward a baseline**
+   Good default for LLM columns:
+   `p_llm_shrunk = p_kalshi + ptcs * (p_llm_raw - p_kalshi)`
+   (If PTCS is low, you basically revert to market.)
+
+2. **Increase uncertainty band ε when PTCS is low**
+   You already have the concept of ε-bands in the roadmap. 
+   Example: `ε = ε0 + (1-ptcs)*ε_additional`
+
+3. **Gate trades**
+   Require `ptcs ≥ threshold` for any strategy that relies on non-market info (injury/news/goalies).
+
+That’s how PTCS improves Brier and reduces “phantom edge” trades.
+
+---
+
+## 6) What to build next (Codex-ready implementation checklist)
+
+### A) “External snapshot” ingestion tool (new)
+
+Create:
+
+* `chimera_v2c/tools/fetch_external_probs.py`
+
+Responsibilities:
+
+* Input: `--league`, `--date`, optional `--apply-ledger`
+* Fetch:
+
+  * Sportsbook odds snapshot (Odds API history or current) → de-vig → `book_consensus`
+  * MoneyPuck win prob (optional plugin)
+* Output:
+
+  * Write `reports/external_snapshots/YYYYMMDD_<league>_external_probs.csv`
+  * If `--apply-ledger`: add missing ledger columns and **fill blank cells only** (append-only discipline)
+
+### B) Upgrade ledger seeding to include external snapshots (small change)
+
+Modify:
+
+* `fill_daily_ledger_from_plan.py` (or `run_daily.py` preflight)
+
+So that when you seed `v2c + kalshi_mid` from the plan, you also stamp:
+
+* `kalshi_mid_ts`
+* and (if enabled) `book_consensus`, `book_consensus_ts`, etc.
+
+This ensures time alignment.
+
+### C) Calibrate new sources (no new code needed)
+
+You already have:
+
+* `fit_calibration_from_daily.py` that can fit Platt scalers for any model column (v2c/grok/gemini/gpt, and it’s described as generalized). 
+  Extend it (if necessary) to accept `--model book_consensus` / `--model moneypuck`.
+
+### D) Rulebook builder (new, but can piggyback existing analysis)
+
+Create:
+
+* `chimera_v2c/tools/build_rulebook_from_ledgers.py`
+
+Outputs JSON like:
+
+```json
+{
+  "league": "nhl",
+  "asof_window_days": 60,
+  "models": {
+    "book_consensus": {
+      "home_rich_fade": {
+        "edge_threshold": 0.05,
+        "min_bets": 50,
+        "direction": "away",
+        "allowed": true
+      }
+    }
+  }
+}
+```
+
+This formalizes what `analyze_ev_vs_kalshi.py` already teaches you to do manually: find winning buckets and use them as gates. 
+
+### E) Execution uses rulebook gates (config-only first)
+
+Do **not** auto-wire trades until the rulebook is stable. Start with:
+
+* “Plan prints candidates that pass the rulebook”
+* Human reviews
+* Then allow execution
+
+This respects your Phase 1 posture (“prove positive EV first”). 
+
+---
+
+## 7) Bottom line recommendation for a solo hobbyist + LLMs
+
+The highest-ROI path is:
+
+1. **Stop optimizing prompts/directives as your main edge engine.**
+2. **Double down on ledger-driven EV mining vs Kalshi**, using:
+
+   * sportsbook proxy (`market_proxy`/`book_consensus`),
+   * calibrated v2c,
+   * optional MoneyPuck,
+   * LLMs as *secondary signals* with PTCS shrinkage.
+
+Because the “beat Kalshi” problem is not “predict winners best” — it’s:
+**find repeatable regimes where Kalshi is mispriced relative to one or more stronger baselines, then trade only those regimes.**
+And your repo already has the core machinery to do exactly that. 

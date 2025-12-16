@@ -1,0 +1,72 @@
+# Core weights and thresholds for v2c planner (NFL)
+league: nfl
+series_ticker: KXNFLGAME
+
+# Ensemble weights
+weights:
+  elo: 0.45
+  four_factors: 0.35
+  # Applies once to the market signal (sharp prior if enabled/available, else Kalshi mid).
+  market: 0.20
+# Require internal vs market/sharp agreement before sizing orders
+require_confluence: false
+# Optional sharp prior (disabled for first pass)
+use_sharp_prior: false
+
+# Edge / risk settings
+edge_min: 0.03        # minimum model - market probability gap to consider (after fees)
+max_fraction: 0.01    # max bankroll fraction per game (quarter Kelly is computed then clipped)
+daily_max_fraction: 0.06  # total bankroll at risk across all games per day
+target_spread_bp: 2   # bump (in percentage points) away from model when setting maker bids
+
+# Elo-style settings
+elo:
+  base_rating: 1500.0
+  k_scale: 0.18
+  home_bonus: 3.0
+
+# Four Factors heuristic coefficients (unused for NFL)
+four_factors:
+  efg_weight: 0.0
+  tov_weight: 0.0
+  orb_weight: 0.0
+  ftr_weight: 0.0
+  intercept: 0.0
+  steepness: 1.0
+
+# Files (can be overridden)
+paths:
+  ratings: chimera_v2c/data/team_ratings.json
+  factors: chimera_v2c/data/team_four_factors.json
+  injury: chimera_v2c/data/injury_adjustments.json
+  halt_list: chimera_v2c/data/halt_list.txt
+  ws_cache: chimera_v2c/data/ws_mids_nfl.json
+
+# Execution options
+execution:
+  require_quotes: true  # skip games without bid/ask
+  dry_run: true         # planner only; no placement
+  use_private: true     # use authenticated markets when creds are available
+  max_spread: 0.10      # skip illiquid books when bid/ask wider than this (probability units)
+
+doctrine:
+  enable_bucket_guardrails: false     # log-only by default
+  require_positive_roi_buckets: false # if true, only trade in buckets with roi_estimate > 0 in bucket_guardrails_path
+  negative_roi_buckets:
+    nba:
+      - "[0.55,0.60)"
+      - "[0.60,0.65)"
+      - "[0.65,0.70)"
+    nhl:
+      - "[0.60,0.65)"
+    nfl: []
+  bucket_guardrails_path: reports/roi_by_bucket_nfl.csv
+  league_min_samples:
+    nba: 0
+    nhl: 0
+    nfl: 50
+  paper_mode_enforce: true
+
+calibration:
+  enabled: false
+  path: chimera_v2c/data/calibration_params.json

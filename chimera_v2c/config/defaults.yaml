@@ -1,0 +1,79 @@
+# Core weights and thresholds for v2c planner
+league: nba
+series_ticker: KXNBAGAME
+
+# Ensemble weights (must sum to <= 1.0; unused mass redistributes over available signals)
+weights:
+  elo: 0.40
+  four_factors: 0.30
+  goalie: 0.0
+  # Applies once to the market signal (sharp prior if enabled/available, else Kalshi mid).
+  market: 0.30
+# Require internal vs market/sharp agreement before sizing orders
+require_confluence: false
+# Sharp prior from The Odds API (preferred when ODDS_API_KEY / THE_ODDS_API_KEY is set)
+use_sharp_prior: true
+
+# Edge / risk settings
+edge_min: 0.06        # minimum model - market probability gap to consider (after fees)
+max_fraction: 0.01    # max bankroll fraction per game (quarter Kelly is computed then clipped)
+daily_max_fraction: 0.08  # total bankroll at risk across all games per day
+target_spread_bp: 2   # bump (in percentage points) away from model when setting maker bids
+
+# Elo-style settings
+elo:
+  base_rating: 1500.0
+  k_scale: 0.18
+  home_bonus: 3.0
+
+# Four Factors heuristic coefficients (differential, per 100 possessions)
+four_factors:
+  efg_weight: 0.40
+  tov_weight: -0.25
+  orb_weight: 0.20
+  ftr_weight: 0.15
+  intercept: 0.0
+  steepness: 1.75   # larger -> more extreme probabilities
+
+goalie:
+  base_rating: 0.0
+  k_scale: 0.12
+  home_bonus: 0.0
+
+# Files (can be overridden)
+paths:
+  ratings: chimera_v2c/data/team_ratings.json
+  factors: chimera_v2c/data/team_four_factors.json
+  injury: chimera_v2c/data/injury_adjustments.json
+  halt_list: chimera_v2c/data/halt_list.txt
+  ws_cache: chimera_v2c/data/ws_mids.json
+  goalies: chimera_v2c/data/goalie_ratings.json
+
+# Execution options
+execution:
+  require_quotes: true  # skip games without bid/ask
+  dry_run: true         # planner only; no placement
+  use_private: true     # use authenticated markets when creds are available
+  max_spread: 0.10      # skip illiquid books when bid/ask wider than this (probability units)
+
+doctrine:
+  enable_bucket_guardrails: false     # log-only by default
+  require_positive_roi_buckets: false # if true, only trade in buckets with roi_estimate > 0 in bucket_guardrails_path
+  negative_roi_buckets:
+    nba:
+      - "[0.55,0.60)"
+      - "[0.60,0.65)"
+      - "[0.65,0.70)"
+    nhl:
+      - "[0.60,0.65)"
+    nfl: []
+  bucket_guardrails_path: reports/roi_by_bucket_nba.csv
+  league_min_samples:
+    nba: 0
+    nhl: 0
+    nfl: 50
+  paper_mode_enforce: true            # when league_min_samples not met, skip orders (stake=None)
+
+calibration:
+  enabled: true
+  path: chimera_v2c/data/calibration_params_nba.json

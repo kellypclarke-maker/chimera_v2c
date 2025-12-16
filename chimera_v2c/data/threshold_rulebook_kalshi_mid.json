@@ -1,0 +1,333 @@
+{
+  "generated_at_utc": "2025-12-15T06:44:51Z",
+  "market_baseline": "kalshi_mid",
+  "window_start": "2025-11-30",
+  "window_end": "2025-12-14",
+  "league_filter": "all",
+  "models": [
+    "v2c",
+    "gemini",
+    "grok",
+    "gpt",
+    "market_proxy",
+    "moneypuck"
+  ],
+  "buckets": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P"
+  ],
+  "threshold_grid": {
+    "min_edge": 0.01,
+    "max_edge": 0.15,
+    "step": 0.01,
+    "thresholds": [
+      0.01,
+      0.02,
+      0.03,
+      0.04,
+      0.05,
+      0.06,
+      0.07,
+      0.08,
+      0.09,
+      0.1,
+      0.11,
+      0.12,
+      0.13,
+      0.14,
+      0.15
+    ]
+  },
+  "selection": {
+    "min_bets": 10,
+    "ev_threshold": 0.1,
+    "mode": "min_edge"
+  },
+  "offset_calibration": {
+    "enabled": true,
+    "dir": "chimera_v2c/data",
+    "slice": "ALL",
+    "bias_by_model": {
+      "grok": -0.01280898876404494
+    },
+    "bias_sources": {
+      "grok": "anchor_offset_calibration_all_grok.json|all"
+    }
+  },
+  "selected": [
+    {
+      "league": "nba",
+      "model": "gemini",
+      "bucket": "A",
+      "edge_threshold": 0.05,
+      "bets": 14,
+      "wins": 6,
+      "win_rate": 0.42857142857142855,
+      "total_pnl": 1.4100000000000001,
+      "avg_pnl": 0.10071428571428573
+    },
+    {
+      "league": "nba",
+      "model": "gemini",
+      "bucket": "C",
+      "edge_threshold": 0.02,
+      "bets": 16,
+      "wins": 13,
+      "win_rate": 0.8125,
+      "total_pnl": 2.6899999999999995,
+      "avg_pnl": 0.16812499999999997
+    },
+    {
+      "league": "nba",
+      "model": "gemini",
+      "bucket": "J",
+      "edge_threshold": 0.01,
+      "bets": 14,
+      "wins": 6,
+      "win_rate": 0.42857142857142855,
+      "total_pnl": 2.8800000000000003,
+      "avg_pnl": 0.20571428571428574
+    },
+    {
+      "league": "nba",
+      "model": "gemini",
+      "bucket": "O",
+      "edge_threshold": 0.02,
+      "bets": 16,
+      "wins": 13,
+      "win_rate": 0.8125,
+      "total_pnl": 2.6899999999999995,
+      "avg_pnl": 0.16812499999999997
+    },
+    {
+      "league": "nba",
+      "model": "grok",
+      "bucket": "A",
+      "edge_threshold": 0.01,
+      "bets": 33,
+      "wins": 13,
+      "win_rate": 0.3939393939393939,
+      "total_pnl": 4.430000000000001,
+      "avg_pnl": 0.13424242424242427
+    },
+    {
+      "league": "nba",
+      "model": "grok",
+      "bucket": "J",
+      "edge_threshold": 0.01,
+      "bets": 29,
+      "wins": 11,
+      "win_rate": 0.3793103448275862,
+      "total_pnl": 4.010000000000001,
+      "avg_pnl": 0.13827586206896553
+    },
+    {
+      "league": "nba",
+      "model": "market_proxy",
+      "bucket": "A",
+      "edge_threshold": 0.01,
+      "bets": 30,
+      "wins": 13,
+      "win_rate": 0.43333333333333335,
+      "total_pnl": 4.940000000000001,
+      "avg_pnl": 0.1646666666666667
+    },
+    {
+      "league": "nba",
+      "model": "market_proxy",
+      "bucket": "J",
+      "edge_threshold": 0.01,
+      "bets": 29,
+      "wins": 13,
+      "win_rate": 0.4482758620689655,
+      "total_pnl": 5.41,
+      "avg_pnl": 0.18655172413793103
+    },
+    {
+      "league": "nba",
+      "model": "v2c",
+      "bucket": "A",
+      "edge_threshold": 0.01,
+      "bets": 24,
+      "wins": 9,
+      "win_rate": 0.375,
+      "total_pnl": 2.7600000000000002,
+      "avg_pnl": 0.115
+    },
+    {
+      "league": "nba",
+      "model": "v2c",
+      "bucket": "C",
+      "edge_threshold": 0.01,
+      "bets": 10,
+      "wins": 8,
+      "win_rate": 0.8,
+      "total_pnl": 1.01,
+      "avg_pnl": 0.101
+    },
+    {
+      "league": "nba",
+      "model": "v2c",
+      "bucket": "J",
+      "edge_threshold": 0.01,
+      "bets": 16,
+      "wins": 6,
+      "win_rate": 0.375,
+      "total_pnl": 2.06,
+      "avg_pnl": 0.12875
+    },
+    {
+      "league": "nba",
+      "model": "v2c",
+      "bucket": "O",
+      "edge_threshold": 0.01,
+      "bets": 10,
+      "wins": 8,
+      "win_rate": 0.8,
+      "total_pnl": 1.01,
+      "avg_pnl": 0.101
+    },
+    {
+      "league": "nhl",
+      "model": "gemini",
+      "bucket": "A",
+      "edge_threshold": 0.01,
+      "bets": 25,
+      "wins": 13,
+      "win_rate": 0.52,
+      "total_pnl": 2.94,
+      "avg_pnl": 0.1176
+    },
+    {
+      "league": "nhl",
+      "model": "gemini",
+      "bucket": "I",
+      "edge_threshold": 0.01,
+      "bets": 13,
+      "wins": 9,
+      "win_rate": 0.6923076923076923,
+      "total_pnl": 3.2100000000000004,
+      "avg_pnl": 0.24692307692307697
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "A",
+      "edge_threshold": 0.03,
+      "bets": 28,
+      "wins": 14,
+      "win_rate": 0.5,
+      "total_pnl": 2.81,
+      "avg_pnl": 0.10035714285714285
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "C",
+      "edge_threshold": 0.06,
+      "bets": 10,
+      "wins": 7,
+      "win_rate": 0.7,
+      "total_pnl": 1.5099999999999996,
+      "avg_pnl": 0.15099999999999997
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "D",
+      "edge_threshold": 0.02,
+      "bets": 11,
+      "wins": 6,
+      "win_rate": 0.5454545454545454,
+      "total_pnl": 1.1700000000000002,
+      "avg_pnl": 0.10636363636363638
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "I",
+      "edge_threshold": 0.01,
+      "bets": 16,
+      "wins": 12,
+      "win_rate": 0.75,
+      "total_pnl": 4.8,
+      "avg_pnl": 0.3
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "K",
+      "edge_threshold": 0.01,
+      "bets": 10,
+      "wins": 6,
+      "win_rate": 0.6,
+      "total_pnl": 1.4700000000000002,
+      "avg_pnl": 0.14700000000000002
+    },
+    {
+      "league": "nhl",
+      "model": "grok",
+      "bucket": "O",
+      "edge_threshold": 0.06,
+      "bets": 10,
+      "wins": 7,
+      "win_rate": 0.7,
+      "total_pnl": 1.5099999999999996,
+      "avg_pnl": 0.15099999999999997
+    },
+    {
+      "league": "nhl",
+      "model": "moneypuck",
+      "bucket": "D",
+      "edge_threshold": 0.02,
+      "bets": 19,
+      "wins": 11,
+      "win_rate": 0.5789473684210527,
+      "total_pnl": 2.7000000000000006,
+      "avg_pnl": 0.14210526315789476
+    },
+    {
+      "league": "nhl",
+      "model": "moneypuck",
+      "bucket": "K",
+      "edge_threshold": 0.01,
+      "bets": 10,
+      "wins": 8,
+      "win_rate": 0.8,
+      "total_pnl": 3.33,
+      "avg_pnl": 0.333
+    },
+    {
+      "league": "nhl",
+      "model": "v2c",
+      "bucket": "A",
+      "edge_threshold": 0.01,
+      "bets": 16,
+      "wins": 8,
+      "win_rate": 0.5,
+      "total_pnl": 2.0900000000000003,
+      "avg_pnl": 0.13062500000000002
+    },
+    {
+      "league": "nhl",
+      "model": "v2c",
+      "bucket": "I",
+      "edge_threshold": 0.11,
+      "bets": 12,
+      "wins": 6,
+      "win_rate": 0.5,
+      "total_pnl": 1.4000000000000001,
+      "avg_pnl": 0.11666666666666668
+    }
+  ]
+}

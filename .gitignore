@@ -1,0 +1,40 @@
+# --- Secrets / local config (DO NOT COMMIT) ---
+/config/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+.env
+.env.*
+
+# --- Local outputs / caches ---
+/.tmp.*
+/.tmp*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- Virtualenvs ---
+.venv/
+venv/
+ENV/
+
+# --- Reports (generated) ---
+reports/**
+!reports/**/
+!reports/**/README.md
+!reports/**/README*.md
+!reports/**/.gitkeep
+
+# --- Local data artifacts (generated) ---
+chimera_v2c/data/chimera.db
+chimera_v2c/data/raw_injuries.json
+chimera_v2c/data/raw_news.json
+chimera_v2c/data/news_*.txt
+chimera_v2c/data/news_feed*.txt
+chimera_v2c/data/moneypuck_injuries_*.txt
+chimera_v2c/data/ws_mids.json
+chimera_v2c/data/current_context*.json

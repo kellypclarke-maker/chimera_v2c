@@ -1,0 +1,39 @@
+{
+  "NBA": {
+    "ATL": {"efg_pct": 0.523, "tov_pct": 0.142, "orb_pct": 0.278, "ftr_rate": 0.312, "bench_diff": 0.15},
+    "BKN": {"efg_pct": 0.508, "tov_pct": 0.158, "orb_pct": 0.265, "ftr_rate": 0.298, "bench_diff": -0.08},
+    "BOS": {"efg_pct": 0.548, "tov_pct": 0.132, "orb_pct": 0.291, "ftr_rate": 0.345, "bench_diff": 0.22},
+    "CHA": {"efg_pct": 0.499, "tov_pct": 0.169, "orb_pct": 0.252, "ftr_rate": 0.287, "bench_diff": -0.12},
+    "CHI": {"efg_pct": 0.512, "tov_pct": 0.155, "orb_pct": 0.268, "ftr_rate": 0.301, "bench_diff": 0.05},
+    "CLE": {"efg_pct": 0.539, "tov_pct": 0.128, "orb_pct": 0.284, "ftr_rate": 0.332, "bench_diff": 0.18},
+    "DAL": {"efg_pct": 0.531, "tov_pct": 0.141, "orb_pct": 0.275, "ftr_rate": 0.319, "bench_diff": 0.11},
+    "DEN": {"efg_pct": 0.542, "tov_pct": 0.135, "orb_pct": 0.282, "ftr_rate": 0.328, "bench_diff": 0.25},
+    "DET": {"efg_pct": 0.505, "tov_pct": 0.162, "orb_pct": 0.259, "ftr_rate": 0.294, "bench_diff": -0.05},
+    "GSW": {"efg_pct": 0.547, "tov_pct": 0.129, "orb_pct": 0.271, "ftr_rate": 0.306, "bench_diff": 0.20},
+    "HOU": {"efg_pct": 0.522, "tov_pct": 0.148, "orb_pct": 0.286, "ftr_rate": 0.314, "bench_diff": 0.09},
+    "IND": {"efg_pct": 0.518, "tov_pct": 0.152, "orb_pct": 0.273, "ftr_rate": 0.308, "bench_diff": 0.07},
+    "LAC": {"efg_pct": 0.536, "tov_pct": 0.137, "orb_pct": 0.279, "ftr_rate": 0.324, "bench_diff": 0.16},
+    "LAL": {"efg_pct": 0.529, "tov_pct": 0.145, "orb_pct": 0.274, "ftr_rate": 0.317, "bench_diff": 0.13},
+    "MEM": {"efg_pct": 0.514, "tov_pct": 0.154, "orb_pct": 0.281, "ftr_rate": 0.302, "bench_diff": 0.04},
+    "MIA": {"efg_pct": 0.532, "tov_pct": 0.139, "orb_pct": 0.288, "ftr_rate": 0.331, "bench_diff": 0.17},
+    "MIL": {"efg_pct": 0.525, "tov_pct": 0.147, "orb_pct": 0.276, "ftr_rate": 0.315, "bench_diff": 0.10},
+    "MIN": {"efg_pct": 0.541, "tov_pct": 0.131, "orb_pct": 0.285, "ftr_rate": 0.329, "bench_diff": 0.21},
+    "NOP": {"efg_pct": 0.520, "tov_pct": 0.150, "orb_pct": 0.270, "ftr_rate": 0.305, "bench_diff": 0.06},
+    "NYK": {"efg_pct": 0.537, "tov_pct": 0.136, "orb_pct": 0.283, "ftr_rate": 0.326, "bench_diff": 0.19},
+    "OKC": {"efg_pct": 0.534, "tov_pct": 0.133, "orb_pct": 0.280, "ftr_rate": 0.322, "bench_diff": 0.14},
+    "ORL": {"efg_pct": 0.528, "tov_pct": 0.144, "orb_pct": 0.277, "ftr_rate": 0.318, "bench_diff": 0.12},
+    "PHI": {"efg_pct": 0.515, "tov_pct": 0.153, "orb_pct": 0.272, "ftr_rate": 0.309, "bench_diff": 0.03},
+    "PHX": {"efg_pct": 0.540, "tov_pct": 0.130, "orb_pct": 0.284, "ftr_rate": 0.327, "bench_diff": 0.23},
+    "POR": {"efg_pct": 0.507, "tov_pct": 0.161, "orb_pct": 0.260, "ftr_rate": 0.295, "bench_diff": -0.07},
+    "SAC": {"efg_pct": 0.524, "tov_pct": 0.146, "orb_pct": 0.275, "ftr_rate": 0.313, "bench_diff": 0.08},
+    "SAS": {"efg_pct": 0.511, "tov_pct": 0.157, "orb_pct": 0.266, "ftr_rate": 0.299, "bench_diff": -0.03},
+    "TOR": {"efg_pct": 0.519, "tov_pct": 0.151, "orb_pct": 0.269, "ftr_rate": 0.304, "bench_diff": 0.02},
+    "UTA": {"efg_pct": 0.506, "tov_pct": 0.160, "orb_pct": 0.263, "ftr_rate": 0.297, "bench_diff": -0.10},
+    "WAS": {"efg_pct": 0.502, "tov_pct": 0.163, "orb_pct": 0.258, "ftr_rate": 0.292, "bench_diff": -0.15}
+  },
+  "metadata": {
+    "generated_at": "2025-12-09T16:30:00Z",
+    "alpha": 0.85,
+    "window": 10
+  }
+}

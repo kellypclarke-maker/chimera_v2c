@@ -1,0 +1,15 @@
+{
+  "features": [
+    "efg_diff",
+    "tov_diff",
+    "orb_diff",
+    "ftr_diff"
+  ],
+  "coef": {
+    "efg_diff": 18.435556355717196,
+    "tov_diff": -7.470089020555788,
+    "orb_diff": 3.9734590661798457,
+    "ftr_diff": 3.7100773427226588
+  },
+  "intercept": 0.08447287520938747
+}

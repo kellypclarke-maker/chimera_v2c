@@ -1,0 +1,40 @@
+{
+  "NHL": {
+    "BOS": {"xgf_pct": 0.509, "hdcf_pct": 0.53, "pp_index": 0.88, "pk_index": -0.38, "goalie_rating": 0.943, "oi_sh_pct": 0.906},
+    "BUF": {"xgf_pct": 0.488, "hdcf_pct": 0.542, "pp_index": -0.09, "pk_index": -0.16, "goalie_rating": 0.913, "oi_sh_pct": 0.881},
+    "CAR": {"xgf_pct": 0.481, "hdcf_pct": 0.542, "pp_index": 1.07, "pk_index": 1.16, "goalie_rating": 0.967, "oi_sh_pct": 0.882},
+    "CHI": {"xgf_pct": 0.502, "hdcf_pct": 0.498, "pp_index": -1.54, "pk_index": 0.26, "goalie_rating": 0.833, "oi_sh_pct": 0.858},
+    "DET": {"xgf_pct": 0.508, "hdcf_pct": 0.51, "pp_index": -0.14, "pk_index": 1.42, "goalie_rating": 0.954, "oi_sh_pct": 0.875},
+    "FLA": {"xgf_pct": 0.549, "hdcf_pct": 0.541, "pp_index": -1.23, "pk_index": -1.85, "goalie_rating": 0.995, "oi_sh_pct": 0.888},
+    "NSH": {"xgf_pct": 0.482, "hdcf_pct": 0.514, "pp_index": 0.12, "pk_index": 1.86, "goalie_rating": 0.951, "oi_sh_pct": 0.948},
+    "MIN": {"xgf_pct": 0.529, "hdcf_pct": 0.469, "pp_index": 0.98, "pk_index": 0.7, "goalie_rating": 0.816, "oi_sh_pct": 0.948},
+    "MTL": {"xgf_pct": 0.459, "hdcf_pct": 0.455, "pp_index": -1.5, "pk_index": 0.05, "goalie_rating": 0.909, "oi_sh_pct": 0.916},
+    "NJD": {"xgf_pct": 0.526, "hdcf_pct": 0.518, "pp_index": -0.59, "pk_index": 0.59, "goalie_rating": 0.834, "oi_sh_pct": 0.866},
+    "NYI": {"xgf_pct": 0.52, "hdcf_pct": 0.454, "pp_index": -1.94, "pk_index": -0.08, "goalie_rating": 0.909, "oi_sh_pct": 0.885},
+    "NYR": {"xgf_pct": 0.545, "hdcf_pct": 0.533, "pp_index": 0.07, "pk_index": -0.82, "goalie_rating": 0.958, "oi_sh_pct": 0.885},
+    "CBJ": {"xgf_pct": 0.5, "hdcf_pct": 0.463, "pp_index": -1.18, "pk_index": -0.56, "goalie_rating": 0.964, "oi_sh_pct": 0.902},
+    "PHI": {"xgf_pct": 0.521, "hdcf_pct": 0.477, "pp_index": 0.93, "pk_index": -0.79, "goalie_rating": 0.843, "oi_sh_pct": 0.933},
+    "PIT": {"xgf_pct": 0.53, "hdcf_pct": 0.513, "pp_index": -0.37, "pk_index": -0.53, "goalie_rating": 0.867, "oi_sh_pct": 0.854},
+    "SJS": {"xgf_pct": 0.513, "hdcf_pct": 0.506, "pp_index": 0.79, "pk_index": -0.71, "goalie_rating": 0.985, "oi_sh_pct": 0.94},
+    "ARI": {"xgf_pct": 0.502, "hdcf_pct": 0.535, "pp_index": 1.15, "pk_index": 1.54, "goalie_rating": 0.909, "oi_sh_pct": 0.944},
+    "SEA": {"xgf_pct": 0.477, "hdcf_pct": 0.464, "pp_index": -1.0, "pk_index": 0.18, "goalie_rating": 0.922, "oi_sh_pct": 0.948},
+    "TBL": {"xgf_pct": 0.511, "hdcf_pct": 0.515, "pp_index": -0.65, "pk_index": -1.53, "goalie_rating": 0.83, "oi_sh_pct": 0.91},
+    "TOR": {"xgf_pct": 0.466, "hdcf_pct": 0.513, "pp_index": -0.77, "pk_index": -0.95, "goalie_rating": 0.818, "oi_sh_pct": 0.883},
+    "ANA": {"xgf_pct": 0.513, "hdcf_pct": 0.507, "pp_index": -0.9, "pk_index": -1.23, "goalie_rating": 0.859, "oi_sh_pct": 0.922},
+    "CGY": {"xgf_pct": 0.504, "hdcf_pct": 0.493, "pp_index": 0.16, "pk_index": -1.23, "goalie_rating": 0.923, "oi_sh_pct": 0.948},
+    "COL": {"xgf_pct": 0.451, "hdcf_pct": 0.451, "pp_index": 0.16, "pk_index": -0.73, "goalie_rating": 0.8, "oi_sh_pct": 0.939},
+    "EDM": {"xgf_pct": 0.503, "hdcf_pct": 0.498, "pp_index": -0.93, "pk_index": 1.62, "goalie_rating": 0.888, "oi_sh_pct": 0.923},
+    "LAK": {"xgf_pct": 0.539, "hdcf_pct": 0.55, "pp_index": 0.16, "pk_index": -1.11, "goalie_rating": 0.93, "oi_sh_pct": 0.919},
+    "OTT": {"xgf_pct": 0.534, "hdcf_pct": 0.492, "pp_index": 0.18, "pk_index": -0.31, "goalie_rating": 0.823, "oi_sh_pct": 0.927},
+    "STL": {"xgf_pct": 0.532, "hdcf_pct": 0.51, "pp_index": 0.06, "pk_index": -0.69, "goalie_rating": 0.924, "oi_sh_pct": 0.873},
+    "UTA": {"xgf_pct": 0.531, "hdcf_pct": 0.51, "pp_index": 0.09, "pk_index": -1.15, "goalie_rating": 0.827, "oi_sh_pct": 0.853},
+    "VAN": {"xgf_pct": 0.46, "hdcf_pct": 0.531, "pp_index": 1.21, "pk_index": -1.18, "goalie_rating": 0.882, "oi_sh_pct": 0.935},
+    "VGK": {"xgf_pct": 0.452, "hdcf_pct": 0.517, "pp_index": 1.05, "pk_index": 2.87, "goalie_rating": 0.928, "oi_sh_pct": 0.87},
+    "WPG": {"xgf_pct": 0.522, "hdcf_pct": 0.496, "pp_index": -0.45, "pk_index": 0.42, "goalie_rating": 0.895, "oi_sh_pct": 0.892}
+  },
+  "metadata": {
+    "generated_at": "2025-12-09T16:00:00Z",
+    "alpha": 0.85,
+    "window": 10
+  }
+}

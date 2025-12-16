@@ -1,0 +1,9 @@
+requests
+websockets
+cryptography
+google-genai
+PyYAML
+pandas
+nba_api
+scikit-learn
+openai>=1.6.0

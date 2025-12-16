@@ -1,0 +1,6 @@
+{
+  "team_ratings": "chimera_v2c/data/team_ratings.json",
+  "team_four_factors": "chimera_v2c/data/team_four_factors.json",
+  "ff_model": "chimera_v2c/data/ff_model.json",
+  "injury_adjustments": "chimera_v2c/data/injury_adjustments.json"
+}

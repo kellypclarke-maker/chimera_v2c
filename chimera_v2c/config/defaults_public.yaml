@@ -1,0 +1,61 @@
+daily_max_fraction: 0.08
+doctrine:
+  bucket_guardrails_path: reports/roi_by_bucket_nba.csv
+  enable_bucket_guardrails: false
+  require_positive_roi_buckets: false
+  league_min_samples:
+    nba: 0
+    nfl: 50
+    nhl: 0
+  negative_roi_buckets:
+    nba:
+    - '[0.55,0.60)'
+    - '[0.60,0.65)'
+    - '[0.65,0.70)'
+    nfl: []
+    nhl:
+    - '[0.60,0.65)'
+  paper_mode_enforce: true
+calibration:
+  enabled: false
+  path: chimera_v2c/data/calibration_params.json
+edge_min: 0.04
+elo:
+  base_rating: 1500.0
+  home_bonus: 3.0
+  k_scale: 0.18
+execution:
+  dry_run: true
+  require_quotes: true
+  use_private: false
+  max_spread: 0.10
+four_factors:
+  efg_weight: 0.4
+  ftr_weight: 0.15
+  intercept: 0.0
+  orb_weight: 0.2
+  steepness: 1.75
+  tov_weight: -0.25
+
+goalie:
+  base_rating: 0.0
+  k_scale: 0.12
+  home_bonus: 0.0
+league: nba
+max_fraction: 0.01
+paths:
+  factors: chimera_v2c/data/team_four_factors.json
+  halt_list: chimera_v2c/data/halt_list.txt
+  injury: chimera_v2c/data/injury_adjustments.json
+  ratings: chimera_v2c/data/team_ratings.json
+  ws_cache: chimera_v2c/data/ws_mids.json
+  goalies: chimera_v2c/data/goalie_ratings.json
+require_confluence: false
+series_ticker: KXNBAGAME
+target_spread_bp: 2
+use_sharp_prior: true
+weights:
+  elo: 0.45
+  four_factors: 0.35
+  goalie: 0.0
+  market: 0.2
