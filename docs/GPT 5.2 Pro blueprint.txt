@@ -1,3 +1,14 @@
+NOTE (ARCHIVED / NOT CANONICAL)
+------------------------------
+This is a historical brainstorming/blueprint document. It may conflict with current Chimera v2c ledger rules (daily ledgers must remain minimal and append-only) and may reference scripts that are not present.
+
+Do not treat this file as operational guidance. For canonical onboarding and workflows, use:
+- `bootstrap.md`
+- `AGENTS.md`
+- `OPERATOR_INSTRUCTIONS.md`
+- `reports/daily_ledgers/README.md`
+- `chimera_v2c/tools/README.md`
+
 Here’s the pivot blueprint + what I’d keep vs. archive, based on the current v2c docs/tooling you already have in place.
 
 ## 1) What you already have that matches the “don’t reinvent the wheel” pivot

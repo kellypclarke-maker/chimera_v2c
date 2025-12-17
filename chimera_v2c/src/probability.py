@@ -137,9 +137,29 @@ class ProbabilityEngine:
         h = self._rating(home) + self.elo_cfg.get("home_bonus", 3.0) + self._inj_delta(home, date)
         a = self._rating(away) + self._inj_delta(away, date)
         diff = h - a
-        k = self.elo_cfg.get("k_scale", 0.18)
-        x = -k * diff
-        p = 1.0 / (1.0 + math.exp(x))
+        # Convert rating delta to a win probability using the standard Elo expectation:
+        #   p = 1 / (1 + 10^(-diff / scale))
+        # where `scale` is traditionally 400.
+        #
+        # Historical configs used `k_scale` for Elo update tuning; that value is
+        # not a valid probability slope (e.g., 0.18 would saturate to ~0/1).
+        # If `elo.prob_scale` is not provided, use 400 by default; if `k_scale`
+        # looks like a divisor (>= 10), treat it as a legacy scale override.
+        scale = self.elo_cfg.get("prob_scale")
+        if scale is None:
+            legacy = self.elo_cfg.get("k_scale")
+            try:
+                legacy_f = float(legacy) if legacy is not None else None
+            except Exception:
+                legacy_f = None
+            scale = legacy_f if (legacy_f is not None and legacy_f >= 10.0) else 400.0
+        try:
+            scale_f = float(scale)
+        except Exception:
+            scale_f = 400.0
+        if scale_f <= 0:
+            scale_f = 400.0
+        p = 1.0 / (1.0 + 10 ** (-diff / scale_f))
         return max(0.01, min(0.99, p))
 
     def _p_ff(self, home: str, away: str) -> Optional[float]:

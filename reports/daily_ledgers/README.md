@@ -19,6 +19,8 @@ Columns (in order)
 ------------------
 `date, league, matchup, v2c, grok, gemini, gpt, kalshi_mid, market_proxy, moneypuck, actual_outcome`
 
+Timestamp policy: by workflow convention, `kalshi_mid` and `market_proxy` represent the same anchor time (default **T‑30 minutes** vs scheduled start; see “Market Timestamp Policy” below).
+
 Formatting rules
 ----------------
 - **Probability-like columns** (`v2c|grok|gemini|gpt|kalshi_mid|market_proxy|moneypuck`):
@@ -76,8 +78,8 @@ Things That Are Not Allowed
   - Any one-off transformations should work on a *copy* in a separate directory.
   - The only approved in-place reformatter is `chimera_v2c/tools/format_daily_ledger.py` for a single date.
 - **No moving the canonical files out of this directory**:
-  - Historical / archived ledgers should be copied into `archive/...` as needed,
-    not removed from here.
+  - Historical / archived ledgers should be copied into a separate archive directory
+    (for example `reports/thesis_summaries/archive/`), not removed from here.
 - **Master ledger is derived**:
   - The analysis-friendly master table is built via
     `PYTHONPATH=. python chimera_v2c/tools/build_master_ledger.py` and lives at
@@ -90,7 +92,7 @@ How This Interacts With Other Tools
   - The **per‑day files in this directory are canonical**. All grading, calibration,
     and analysis should read from `reports/daily_ledgers/*.csv`.
   - A legacy game‑level master lives at
-    `archive/specialist_performance/archive_old_ledgers/game_level_ml_master.csv`;
+    `reports/specialist_performance/game_level_ml_master.csv`;
     it is archived and only used to backfill historical days before 2025‑12‑04.
 - Writers:
   - `chimera_v2c/tools/ensure_daily_ledger.py` is the recommended entry point for

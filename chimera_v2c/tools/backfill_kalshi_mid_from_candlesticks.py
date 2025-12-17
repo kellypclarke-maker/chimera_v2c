@@ -182,6 +182,26 @@ def _candlestick_mid_prob(candle: Dict[str, object]) -> Optional[float]:
     return ((bid_i + ask_i) / 2.0) / 100.0
 
 
+def _candlestick_bid_ask_close(candle: Dict[str, object]) -> Tuple[Optional[int], Optional[int]]:
+    yes_bid = (candle.get("yes_bid") or {}) if isinstance(candle.get("yes_bid"), dict) else {}
+    yes_ask = (candle.get("yes_ask") or {}) if isinstance(candle.get("yes_ask"), dict) else {}
+    bid = yes_bid.get("close")
+    ask = yes_ask.get("close")
+    try:
+        bid_i = int(bid) if bid is not None else None
+    except Exception:
+        bid_i = None
+    try:
+        ask_i = int(ask) if ask is not None else None
+    except Exception:
+        ask_i = None
+    if bid_i is not None and (bid_i < 0 or bid_i > 100):
+        bid_i = None
+    if ask_i is not None and (ask_i < 0 or ask_i > 100):
+        ask_i = None
+    return bid_i, ask_i
+
+
 def _chunked(items: Sequence[str], size: int) -> Iterator[List[str]]:
     for i in range(0, len(items), size):
         yield list(items[i : i + size])
@@ -324,6 +344,89 @@ def fetch_candlestick_mids(
                 best_end_ts = candle_end_ts
                 best_mid = mid
         out[str(ticker)] = best_mid
+    return out
+
+
+def fetch_candlestick_quotes(
+    *,
+    market_tickers: Sequence[str],
+    target_ts: int,
+    period_interval_min: int,
+    lookback_min: int = 60,
+    kalshi_public_base: str,
+    session: requests.Session,
+) -> Dict[str, Dict[str, Optional[float]]]:
+    """
+    Fetch bid/ask/mid at the most recent candlestick end_ts <= target_ts.
+
+    Returns mapping market_ticker -> {
+      'yes_bid': int cents (or None),
+      'yes_ask': int cents (or None),
+      'mid': float in [0,1] (or None),
+      'spread': float in [0,1] (or None),
+      'candle_end_ts': int seconds (or None),
+    }
+    """
+    url = f"{kalshi_public_base.rstrip('/')}/markets/candlesticks"
+    out: Dict[str, Dict[str, Optional[float]]] = {t: {"yes_bid": None, "yes_ask": None, "mid": None, "spread": None, "candle_end_ts": None} for t in market_tickers}
+    if not market_tickers:
+        return out
+
+    target_ts_int = int(target_ts)
+    start_ts = target_ts_int - int(lookback_min) * 60
+    end_ts = target_ts_int + int(period_interval_min) * 60
+    params = {
+        "market_tickers": ",".join(market_tickers),
+        "start_ts": int(start_ts),
+        "end_ts": int(end_ts),
+        "period_interval": int(period_interval_min),
+    }
+    resp = _get_with_retries(session, url, params=params, timeout=30)
+    resp.raise_for_status()
+    data = resp.json()
+    for entry in data.get("markets") or []:
+        if not isinstance(entry, dict):
+            continue
+        ticker = entry.get("market_ticker")
+        if not ticker:
+            continue
+        candles = entry.get("candlesticks") or []
+        if not isinstance(candles, list) or not candles:
+            continue
+
+        best_end_ts: Optional[int] = None
+        best_bid: Optional[int] = None
+        best_ask: Optional[int] = None
+        best_mid: Optional[float] = None
+        for candle in candles:
+            if not isinstance(candle, dict):
+                continue
+            try:
+                candle_end_ts = int(candle.get("end_period_ts", -1))
+            except Exception:
+                continue
+            if candle_end_ts > target_ts_int:
+                continue
+            mid = _candlestick_mid_prob(candle)
+            bid_i, ask_i = _candlestick_bid_ask_close(candle)
+            if mid is None or bid_i is None or ask_i is None:
+                continue
+            if best_end_ts is None or candle_end_ts > best_end_ts:
+                best_end_ts = candle_end_ts
+                best_bid = bid_i
+                best_ask = ask_i
+                best_mid = mid
+
+        if best_end_ts is None or best_mid is None or best_bid is None or best_ask is None:
+            continue
+        spread = (best_ask - best_bid) / 100.0
+        out[str(ticker)] = {
+            "yes_bid": float(best_bid),
+            "yes_ask": float(best_ask),
+            "mid": float(best_mid),
+            "spread": float(spread),
+            "candle_end_ts": float(best_end_ts),
+        }
     return out
 
 

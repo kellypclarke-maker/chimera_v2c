@@ -88,9 +88,9 @@ Before touching anything under `reports/daily_ledgers/`, also read:
 ### 2.2 Specialist / LLM Reports
 
 - Canonical specialist reports live under `reports/specialist_reports/` (NBA/NHL/NFL subfolders).
-- Raw, longform LLM outputs live under `reports/specialist_reports/archive/raw/` and must be:
+- Raw, longform LLM outputs live under `reports/specialist_reports/raw/` and must be:
   - Parsed into per‑game canonical files.
-  - Archived to `archive/raw_processed/` or `archive/raw_unparsed/` after processing.
+  - Archived to `reports/specialist_reports/archive/raw_processed/` or `reports/specialist_reports/archive/raw_unparsed/` after processing.
 - Never delete or rewrite past specialist ledger rows; only append or fill missing fields.
 - For v8.4‑style directives that rely on tabular grounding, prefer using the prebuilt slate‑level CSV packets under `reports/llm_packets/<league>/<YYYYMMDD>/` (via `build_llm_packets.py`) as the primary truth source for standings, injuries, schedule/fatigue, odds, and H2H instead of re‑scraping external sites ad hoc in the prompt.
 
@@ -156,7 +156,7 @@ When a fresh instance is started and pointed at this repo, follow this sequence:
 
 - Live Kalshi markets are available from the public HTTP API at  
   `https://api.elections.kalshi.com/trade-api/v2/markets` without private keys.
-- The helper `kalshi_utils.list_public_markets` defaults to the demo base (`demo-api.kalshi.co`); this is fine for smoke tests but **will not show live NBA/NHL/NFL GAME markets**.
+- The helper `kalshi_utils.list_public_markets` defaults to the demo base (`demo-api.kalshi.co`) **unless** `KALSHI_PUBLIC_BASE` is set. In this repo, `load_env_from_env_list()` will set `KALSHI_PUBLIC_BASE` from `KALSHI_BASE`/`KALSHI_API_BASE` when available, so planners/snapshots should see live GAME markets by default.
 - For read‑only GAME mids (e.g., to fill `kalshi_mid` or analyze EV) an LLM *may*:
   - Call `GET https://api.elections.kalshi.com/trade-api/v2/markets` with `status=open`, `series_ticker=KXNBAGAME` (or `KXNHLGAME` / `KXNFLGAME`), and `limit` as needed, or
   - Set `KALSHI_PUBLIC_BASE=https://api.elections.kalshi.com/trade-api/v2` and then use existing helpers that rely on the public base.

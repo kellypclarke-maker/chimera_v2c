@@ -1,3 +1,14 @@
+NOTE (ARCHIVED / NOT CANONICAL)
+------------------------------
+This is a historical brainstorming/blueprint document. It may reference tools that do not exist in this repo and may conflict with current ledger safety rules.
+
+Do not treat this file as operational guidance. For canonical onboarding and workflows, use:
+- `bootstrap.md`
+- `AGENTS.md`
+- `OPERATOR_INSTRUCTIONS.md`
+- `reports/daily_ledgers/README.md`
+- `chimera_v2c/tools/README.md`
+
 ### Direct Answer
 
 - **Feasibility**: Research suggests it's highly feasible to prototype this using your archived LanceDB RAG scripts, gemini-embedding-001, and Tavily web search integration, as these tools align with 2025 CLI workflows like Ollama for local LLM spin-up—expect a functional MVP in 1-2 days with Python/LangChain chaining.

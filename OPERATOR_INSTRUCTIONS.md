@@ -10,7 +10,7 @@
 - **Lock finished days:**
   - When a daily ledger is finalized, create `reports/daily_ledgers/locked/YYYYMMDD.lock` to prevent accidental edits. Do not modify locked dates unless a human passes an explicit override.
 - **No live master ledger:**
-  - Any archived master files (e.g., under `archive/specialist_performance/archive_old_ledgers/`) are read-only reference; do not mutate or rebuild them in normal workflows.
+  - The legacy, historical game-level master `reports/specialist_performance/game_level_ml_master.csv` is read-only reference; do not mutate or rebuild it in normal workflows.
 - **Master ledger (derived view):**
   - The analysis-ready master lives at `reports/master_ledger/master_game_ledger.csv` and is built via `PYTHONPATH=. python chimera_v2c/tools/build_master_ledger.py`. It snapshots the prior master and only appends/fills blanks; never edit it by hand.
 

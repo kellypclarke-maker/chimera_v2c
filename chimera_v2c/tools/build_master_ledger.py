@@ -43,6 +43,9 @@ DAILY_DIR = Path("reports/daily_ledgers")
 DAILY_SNAPSHOT_DIR = DAILY_DIR / "snapshots"
 LOCK_DIR = DAILY_DIR / "locked"
 ARCHIVE_FILES = [
+    # Historical master (legacy, read-only) used for pre-2025-12-04 backfills.
+    Path("reports/specialist_performance/game_level_ml_master.csv"),
+    # Older environments may still store archived masters under archive/.
     Path("archive/specialist_performance/archive_old_ledgers/game_level_ml_master.csv"),
     Path("archive/specialist_performance/archive_old_ledgers/ledger_nba_2025-12-05_to_2025-12-07.csv"),
     Path("archive/specialist_performance/archive_old_ledgers/ledger_nhl_2025-12-05_to_2025-12-07.csv"),

@@ -78,7 +78,12 @@ def _cell_blank(val: object) -> bool:
         return True
     if isinstance(val, float) and pd.isna(val):
         return True
-    return str(val).strip() == ""
+    s = str(val).strip()
+    if s == "":
+        return True
+    # Daily ledgers use `NR` as the canonical "reviewed missing" sentinel.
+    # Treat it as fillable for market baselines.
+    return s.upper() == "NR"
 
 
 def _fmt_prob(p: Optional[float], decimals: int = 4) -> str:
@@ -373,6 +378,7 @@ def apply_fills_to_daily_ledger(
             new_rows=new_rows,
             key_fields=key_fields,
             value_fields=[c for c in df.columns if c not in key_fields],
+            blank_sentinels={"NR"},
         )
     except LedgerGuardError as exc:
         raise SystemExit(f"[error] append-only guard failed: {exc}") from exc

@@ -22,7 +22,7 @@ from chimera_v2c.src.config_loader import V2CConfig
 from chimera_v2c.tools.build_dossier import build_dossier
 from chimera_v2c.lib.env_loader import load_env_from_env_list
 
-RAW_DIR = Path("specialist_reports/raw")
+RAW_DIR = Path("reports/specialist_reports/raw")
 LOG_DIR = Path("reports/specialist_performance")
 LOG_PATH = LOG_DIR / "model_comparison.csv"
 HEADER = [

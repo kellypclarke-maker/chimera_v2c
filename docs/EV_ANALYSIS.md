@@ -16,7 +16,8 @@ Data Source
 - Expected columns (at minimum):
   - `date`, `league`, `matchup`, `actual_outcome`
   - Model columns: `v2c`, `gemini`, `grok`, `gpt`
-  - Market column: `kalshi_mid`
+  - Market column: `kalshi_mid` (workflow convention: captured at **T‑30 minutes** vs scheduled start; see `reports/daily_ledgers/README.md`)
+  - Optional market baseline: `market_proxy` (Odds API, same T‑30 anchor when present)
 
 The ledgers are append-only; do **not** rewrite or bulk-regenerate them. See
 `reports/daily_ledgers/README.md` and `OPERATOR_INSTRUCTIONS.md` for full rules.

@@ -2,7 +2,8 @@
 """
 LLM-assisted specialist ingester with preview-first workflow.
 
-Reads raw specialist reports (Gemini/Grok/GPT) from archive/raw or raw/,
+Reads raw specialist reports (Gemini/Grok/GPT) from `reports/specialist_reports/raw/`
+(preferred; legacy location: `reports/specialist_reports/archive/raw/`),
 parses/synthesizes HELIOS headers, writes canonical per-game reports, and
 fills blank daily-ledger model cells (append-only).
 """
@@ -39,8 +40,8 @@ from chimera_v2c.src.ledger.guard import (
 from chimera_v2c.src.ledger.outcomes import parse_home_win
 
 
-RAW_DEFAULT = Path("reports/specialist_reports/archive/raw")
-RAW_ALT = Path("reports/specialist_reports/raw")
+RAW_DEFAULT = Path("reports/specialist_reports/raw")
+RAW_LEGACY = Path("reports/specialist_reports/archive/raw")
 ARCHIVE_PROCESSED = Path("reports/specialist_reports/archive/raw_processed")
 ARCHIVE_UNPARSED = Path("reports/specialist_reports/archive/raw_unparsed")
 CANONICAL_ROOT = Path("reports/specialist_reports")
@@ -217,6 +218,77 @@ def parse_legacy_helios_prediction_headers(text: str, src: Path) -> List[ParsedG
                 p_true=None,
                 p_home=p_home,
                 model_label=model_label,
+                source_file=src,
+                raw_header=None,
+            )
+        )
+    return games
+
+
+def infer_league_from_filename(file_name: str) -> Optional[str]:
+    lowered = (file_name or "").lower()
+    if " nba" in lowered or "nba" in lowered:
+        return "nba"
+    if " nhl" in lowered or "nhl" in lowered:
+        return "nhl"
+    if " nfl" in lowered or "nfl" in lowered:
+        return "nfl"
+    return None
+
+
+def parse_compact_prediction_headers(text: str, src: Path) -> List[ParsedGame]:
+    """
+    Parse compact blocks like:
+
+      HELIOS_PREDICTION_HEADER
+      DATE: 2025-12-16
+      MATCHUP: UTA@BOS
+      P_HOME: 0.505
+      WINNER: BOS
+
+    This format appears in some NHL packets and does not include an explicit
+    `league:` line. When absent, the league is inferred from the filename.
+    """
+    games: List[ParsedGame] = []
+    blocks = re.split(r"(?im)^\s*HELIOS_PREDICTION_HEADER\s*$", text)
+    league_hint = infer_league_from_filename(src.name)
+    for chunk in blocks[1:]:
+        head = chunk.strip()
+        m_date = re.search(r"(?im)^\s*date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$", head)
+        m_match = re.search(r"(?im)^\s*matchup:\s*([A-Z0-9]+@[A-Z0-9]+)\s*$", head)
+        m_p_home = re.search(r"(?im)^\s*p_home:\s*([0-9.]+)\s*$", head)
+        m_winner = re.search(r"(?im)^\s*winner:\s*([A-Z0-9]+)\s*$", head)
+        m_league = re.search(r"(?im)^\s*league:\s*([A-Za-z]+)\s*$", head)
+        if not (m_date and m_match):
+            continue
+        date_str = m_date.group(1).strip()
+        league = normalize_league(m_league.group(1)) if m_league else (league_hint or None)
+        if not league:
+            continue
+
+        away_raw, home_raw = m_match.group(1).strip().upper().split("@", 1)
+        away = normalize_team(away_raw, league)
+        home = normalize_team(home_raw, league)
+        if not away or not home:
+            continue
+        winner = normalize_team(m_winner.group(1), league) if m_winner else None
+        p_home = None
+        if m_p_home:
+            try:
+                p_home = clamp_prob(float(m_p_home.group(1)))
+            except ValueError:
+                p_home = None
+
+        games.append(
+            ParsedGame(
+                date=date_str,
+                league=league,
+                away=away,
+                home=home,
+                winner=winner,
+                p_true=None,
+                p_home=p_home,
+                model_label="",
                 source_file=src,
                 raw_header=None,
             )
@@ -525,6 +597,8 @@ def ingest_file(
     parsed = parse_helios_blocks(text, raw_path)
     if not parsed:
         parsed = parse_legacy_helios_prediction_headers(text, raw_path)
+    if not parsed:
+        parsed = parse_compact_prediction_headers(text, raw_path)
     used_llm = False
     if not parsed:
         try:
@@ -574,7 +648,7 @@ def main() -> None:
     ap.add_argument(
         "--raw-dir",
         default=str(RAW_DEFAULT),
-        help="Directory containing raw specialist reports (default: reports/specialist_reports/archive/raw).",
+        help="Directory containing raw specialist reports (default: reports/specialist_reports/raw).",
     )
     ap.add_argument("--apply", action="store_true", help="Apply changes (write canonical + ledger + move files).")
     ap.add_argument("--dry-run", action="store_true", help="Preview only (default).")
@@ -592,7 +666,11 @@ def main() -> None:
 
     raw_dir = Path(args.raw_dir)
     if not raw_dir.exists():
-        raise SystemExit(f"[error] raw dir missing: {raw_dir}")
+        if raw_dir == RAW_DEFAULT and RAW_LEGACY.exists():
+            print(f"[warn] raw dir missing at {raw_dir}; using legacy location {RAW_LEGACY}")
+            raw_dir = RAW_LEGACY
+        else:
+            raise SystemExit(f"[error] raw dir missing: {raw_dir}")
 
     raw_files = sorted(raw_dir.glob("*.txt"))
     if not raw_files:

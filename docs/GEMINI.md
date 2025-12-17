@@ -66,7 +66,7 @@ All commands should be run from the repository root with `PYTHONPATH=.`.
 *   Refer to `docs/DOCTRINE_AND_HISTORY.md` for architectural context, betting doctrine, and legacy information.
 
 **Ledger safety (critical):**
-* The canonical game ledger lives at `reports/specialist_performance/game_level_ml_master.csv`.
-* Only write to it via `PYTHONPATH=. python chimera_v2c/tools/build_game_level_ml_table.py` (append-only; seeds from existing rows).
-* Take a snapshot before any rebuild: `PYTHONPATH=. python chimera_v2c/tools/snapshot_game_level_ledger.py`.
-* Never run or add scripts that edit the ledger in place (recover/clean/dedupe). All such scripts have been removed.
+* Canonical game records are the **per-day ledgers** under `reports/daily_ledgers/` (`YYYYMMDD_daily_game_ledger.csv`) and must be treated as append-only (add rows or fill blanks only).
+* Use `PYTHONPATH=. python chimera_v2c/tools/ensure_daily_ledger.py` for daily creation and the append-safe ledger tools documented in `reports/daily_ledgers/README.md`.
+* The historical master `reports/specialist_performance/game_level_ml_master.csv` is legacy/reference-only; do not write to it in normal v2c workflows.
+* Never run or add scripts that “clean/recover/dedupe” ledgers in place.

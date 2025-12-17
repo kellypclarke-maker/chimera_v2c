@@ -7,8 +7,8 @@ This folder is the **canonical home** for all Specialist reports that feed the p
 - `NBA/` – Canonical, per‑game NBA reports (`.txt`), organized into monthly subfolders (e.g. `2025-10/`, `2025-11/`, `2025-12/`).
 - `NFL/` – Canonical, per‑game NFL reports, also organized by `YYYY-MM/`.
 - `NHL/` – Canonical, per‑game NHL reports, also organized by `YYYY-MM/`.
-- `archive/` – Single consolidated archive for all raw and legacy reports:
-  - `archive/raw/` – Drop zone for freshly downloaded reports (Gemini/Grok/GPT), including long slate or deep‑dive documents.
+- `raw/` – Drop zone for freshly downloaded reports (Gemini/Grok/GPT), including long slate or deep‑dive documents.
+- `archive/` – Post-parse archive for raw and legacy reports:
   - `archive/raw_processed/` – Raw reports that have already been parsed into canonical per‑game files.
   - `archive/raw_unparsed/` – Raw reports that failed parsing and need manual review or cleanup.
   - `archive/versioned/` – Legacy, versioned canonical copies kept for historical reference.
@@ -45,15 +45,15 @@ Narrative content may follow the header and is optional for ingestion.
 
 ## End‑to‑End Processing Flow (Raw → Canonical → Daily Ledger → Archive)
 
-When a raw specialist report is dropped into `reports/specialist_reports/archive/raw/`, follow this sequence.
+When a raw specialist report is dropped into `reports/specialist_reports/raw/`, follow this sequence.
 
 ### 1. Deep Research (Human)
 
-- Human spins up Gemini/Grok/GPT for a slate or specific game and saves the raw output (as‑downloaded) into `reports/specialist_reports/archive/raw/`.
+- Human spins up Gemini/Grok/GPT for a slate or specific game and saves the raw output (as‑downloaded) into `reports/specialist_reports/raw/`.
 
 ### 2. Process Raw → Canonical (LLM Task)
 
-Instruction: “Go process the Gemini/Grok/GPT reports in `reports/specialist_reports/archive/raw/`.”
+Instruction: “Go process the Gemini/Grok/GPT reports in `reports/specialist_reports/raw/`.”
 
 For each raw `.txt` file:
 
@@ -78,7 +78,7 @@ Preview-first automation:
   will parse/synthesize HELIOS headers, show intended canonical filenames and ledger fills,
   and **will not write**. Add `--apply` to write canonical files, fill blank model cells in the
   daily ledger (append-only, respects lockfiles unless `--force`), and move raw files into
-  `archive/raw_processed/` or `archive/raw_unparsed/`.
+  `reports/specialist_reports/archive/raw_processed/` or `reports/specialist_reports/archive/raw_unparsed/`.
 
 This script will synthesize or wrap HELIOS headers for older canonical files without touching daily ledgers.
 
@@ -123,23 +123,23 @@ For grading and backfills (outcomes):
 ### 4. Archive Raw (LLM Task)
 
 - After all per‑game canonical files and daily ledger updates are written successfully:
-  - Move the original raw report from `archive/raw/` into either:
-    - `archive/raw_processed/` (parsed successfully), or
-    - `archive/raw_unparsed/` (failed parsing, needs manual review).
+  - Move the original raw report from `reports/specialist_reports/raw/` into either:
+    - `reports/specialist_reports/archive/raw_processed/` (parsed successfully), or
+    - `reports/specialist_reports/archive/raw_unparsed/` (failed parsing, needs manual review).
 - Do **not** overwrite or delete raw files during normal operation; moving preserves a full audit trail.
 
 ## Data Integrity Rules
 
 - **Daily ledgers are canonical**:
   - Game‑level metrics, probabilities, and final scores must be read from and written to the per‑day files in `reports/daily_ledgers/`.
-  - Any legacy master ledger under `archive/specialist_performance/` is read‑only and used only for historical backfill.
+  - The legacy historical master `reports/specialist_performance/game_level_ml_master.csv` is read‑only and used only for historical backfill.
 - **Append‑only behavior**:
   - Never delete or rewrite existing rows in daily ledgers.
   - Only add new rows or fill blank cells in the appropriate model columns and `actual_outcome`.
 - **Canonical per‑game reports**:
   - Once written, per‑game canonical `.txt` files under `NBA/`, `NFL/`, `NHL/` should not be destroyed.
   - If a report is found to be a hallucination (game never played according to ESPN/official schedule):
-    - Prefer moving the file into `archive/raw_unparsed/` (or another clearly marked quarantine folder).
+    - Prefer moving the file into `reports/specialist_reports/archive/raw_unparsed/` (or another clearly marked quarantine folder).
     - Add a note in the relevant daily ledger row (if one exists) explaining the hallucination.
     - Only delete canonical files for hallucinated games when a human explicitly asks you to do so.
 - **No bulk regeneration**:
@@ -150,16 +150,16 @@ For grading and backfills (outcomes):
 
 ## LLM / Agent Checklist (Raw Report Ingest)
 
-When you see a request like “I just dropped new specialist reports in `archive/raw/`, please wire them up,” do the following:
+When you see a request like “I just dropped new specialist reports in `reports/specialist_reports/raw/`, please wire them up,” do the following:
 
 1. Read this `reports/specialist_reports/README.md` and `reports/daily_ledgers/README.md`.
-2. For each raw file under `reports/specialist_reports/archive/raw/`:
+2. For each raw file under `reports/specialist_reports/raw/`:
    - Parse or synthesize HELIOS headers per game.
    - Write per‑game canonical `.txt` files in the correct league/month folder with a proper HELIOS header.
    - Update the corresponding `YYYYMMDD_daily_game_ledger.csv` file:
      - Add missing rows,
      - Fill the correct model column with `p_home` as described above.
-   - Move the raw file into `archive/raw_processed/` or `archive/raw_unparsed/`.
+   - Move the raw file into `reports/specialist_reports/archive/raw_processed/` or `reports/specialist_reports/archive/raw_unparsed/`.
 3. Report back:
    - Which games were ingested,
    - Which daily ledgers were updated,
