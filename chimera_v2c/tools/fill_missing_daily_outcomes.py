@@ -25,6 +25,7 @@ daily ledgers have verifiable final scores for model grading.
 
 import argparse
 import csv
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -156,18 +157,30 @@ def fill_missing_for_file(path: Path, *, allow_locked: bool) -> bool:
         existing_outcome_raw = _clean_cell(row.get("actual_outcome"))
         existing_outcome = _clean_outcome_cell(existing_outcome_raw)
 
-        cache_key = (league, date)
-        if cache_key not in sb_cache:
-            sb = fetch_scoreboard(league, date)
-            sb_cache[cache_key] = sb
-        else:
-            sb = sb_cache[cache_key]
-
-        if sb.get("status") != "ok":
+        # ESPN scoreboards can group late-night games under the next day (timezone edge),
+        # while our ledgers use a local “slate date”. Try date, then date+1 defensively.
+        try:
+            base_date = datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
             continue
 
-        game = find_game(sb, league, away_raw, home_raw)
-        if not game:
+        game = None
+        sb = None
+        for date_try in (base_date, base_date + timedelta(days=1)):
+            date_str = date_try.isoformat()
+            cache_key = (league, date_str)
+            if cache_key not in sb_cache:
+                sb_cache[cache_key] = fetch_scoreboard(league, date_str)
+            sb_try = sb_cache[cache_key]
+            if sb_try.get("status") != "ok":
+                continue
+            game_try = find_game(sb_try, league, away_raw, home_raw)
+            if game_try:
+                sb = sb_try
+                game = game_try
+                break
+
+        if not game or not sb:
             continue
 
         status = game.get("status") or {}

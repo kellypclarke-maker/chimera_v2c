@@ -223,6 +223,9 @@ def build_roi_by_bucket(
     league_norm = league.lower()
     by_game: Dict[Tuple[str, str], List[Candidate]] = defaultdict(list)
     for entry in raw:
+        strategy = str(entry.get("strategy") or "").strip().lower()
+        if strategy and strategy != "v2c":
+            continue
         d = entry.get("date")
         if not d or d < start_date or d > end_date:
             continue

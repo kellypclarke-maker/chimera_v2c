@@ -87,7 +87,8 @@ def seed_daily_ledger_from_rows(
         raise SystemExit(f"[error] daily ledger missing: {ledger_path}")
 
     ymd = ledger_path.name.split("_")[0]
-    locked = load_locked_dates(LOCK_DIR)
+    lock_dir = ledger_path.parent / "locked"
+    locked = load_locked_dates(lock_dir)
     if ymd in locked and not force:
         raise SystemExit(f"[error] {ymd} is locked; refusing to modify {ledger_path} (pass --force to override)")
 
@@ -107,7 +108,8 @@ def seed_daily_ledger_from_rows(
     if not apply:
         return added, len(old_rows)
 
-    snapshot_file(ledger_path, SNAPSHOT_DIR)
+    snapshot_dir = ledger_path.parent / "snapshots"
+    snapshot_file(ledger_path, snapshot_dir)
     try:
         compute_append_only_diff(
             old_rows=old_rows,
@@ -165,4 +167,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

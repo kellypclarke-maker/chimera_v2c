@@ -1,0 +1,30 @@
+{
+  "base_units": 0,
+  "cap_units": 10,
+  "flip_delta_mode": "none",
+  "flip_weight": 2,
+  "league": "nhl",
+  "models": [
+    "v2c",
+    "grok",
+    "gemini",
+    "gpt",
+    "market_proxy",
+    "moneypuck"
+  ],
+  "roi_epsilon": 0.03,
+  "roi_guardrail_mode": "soft",
+  "trained_through": "2025-12-17",
+  "vote_delta_by_model": {
+    "gemini": 0.08,
+    "gpt": 0.0,
+    "grok": 0.08,
+    "market_proxy": 0.0,
+    "moneypuck": 0.1,
+    "v2c": 0.0
+  },
+  "vote_delta_default": 0.0,
+  "vote_edge_by_model": {},
+  "vote_edge_default": 0.0,
+  "vote_weight": 1
+}

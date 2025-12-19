@@ -1,0 +1,65 @@
+{
+  "bootstrap_sims": 2000,
+  "confidence_level": 0.9,
+  "league": "nhl",
+  "min_games": 10,
+  "perf_by_model": {
+    "gemini": {
+      "model": "gemini",
+      "n": 11,
+      "net_pnl": 2.13,
+      "risked": 4.65,
+      "roi": 0.4580645161290322,
+      "roi_lb90": 0.059866962305986676
+    },
+    "gpt": {
+      "model": "gpt",
+      "n": 9,
+      "net_pnl": 2.02,
+      "risked": 3.8,
+      "roi": 0.531578947368421,
+      "roi_lb90": 0.05234159779614322
+    },
+    "grok": {
+      "model": "grok",
+      "n": 22,
+      "net_pnl": 4.1,
+      "risked": 9.46,
+      "roi": 0.43340380549682866,
+      "roi_lb90": 0.14038876889848806
+    },
+    "market_proxy": {
+      "model": "market_proxy",
+      "n": 0,
+      "net_pnl": 0.0,
+      "risked": 0.0,
+      "roi": 0.0,
+      "roi_lb90": 0.0
+    },
+    "moneypuck": {
+      "model": "moneypuck",
+      "n": 12,
+      "net_pnl": 1.26,
+      "risked": 5.5,
+      "roi": 0.2290909090909091,
+      "roi_lb90": -0.13768115942028983
+    },
+    "v2c": {
+      "model": "v2c",
+      "n": 18,
+      "net_pnl": -1.0000000000000004,
+      "risked": 7.640000000000001,
+      "roi": -0.130890052356021,
+      "roi_lb90": -0.5094339622641509
+    }
+  },
+  "primary_models": [
+    "gemini",
+    "grok"
+  ],
+  "secondary_models": [
+    "moneypuck",
+    "v2c"
+  ],
+  "trained_through": "2025-12-17"
+}

@@ -178,6 +178,11 @@ def parse_legacy_helios_prediction_headers(text: str, src: Path) -> List[ParsedG
     """
     games: List[ParsedGame] = []
     blocks = re.split(r"(?im)^\s*HELIOS_PREDICTION_HEADER\s*$", text)
+    # Support variants like:
+    #   P_HOME (DET): **0.540**
+    #   P_HOME: 0.505
+    #   p_home: 0.52
+    p_home_rx = re.compile(r"(?im)^\s*p_home(?:\s*\([^)]+\))?\s*:\s*\**\s*([0-9]*\.?[0-9]+)\s*\**\s*$")
     for chunk in blocks[1:]:
         # Stop at the next obvious separator to keep parsing tight.
         head = chunk.split("\n---", 1)[0]
@@ -185,11 +190,15 @@ def parse_legacy_helios_prediction_headers(text: str, src: Path) -> List[ParsedG
         m_ts = re.search(r"(?im)^\s*timestamp:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\b", head)
         if m_ts:
             date_str = m_ts.group(1).strip()
+        if not date_str:
+            m_date = re.search(r"(?im)^\s*date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$", head)
+            if m_date:
+                date_str = m_date.group(1).strip()
         m_league = re.search(r"(?im)^\s*league:\s*([A-Za-z]+)\s*$", head)
         m_match = re.search(r"(?im)^\s*matchup:\s*([A-Z0-9]+@[A-Z0-9]+)\s*$", head)
         m_model = re.search(r"(?im)^\s*model:\s*(.+?)\s*$", head)
         m_winner = re.search(r"(?im)^\s*winner:\s*([A-Z0-9]+)\s*$", head)
-        m_p_home = re.search(r"(?im)^\s*p_home:\s*([0-9.]+)\s*$", head)
+        m_p_home = p_home_rx.search(head)
         if not (date_str and m_league and m_match):
             continue
         league = normalize_league(m_league.group(1))
@@ -252,21 +261,33 @@ def parse_compact_prediction_headers(text: str, src: Path) -> List[ParsedGame]:
     games: List[ParsedGame] = []
     blocks = re.split(r"(?im)^\s*HELIOS_PREDICTION_HEADER\s*$", text)
     league_hint = infer_league_from_filename(src.name)
+    p_home_rx = re.compile(r"(?im)^\s*p_home(?:\s*\([^)]+\))?\s*:\s*\**\s*([0-9]*\.?[0-9]+)\s*\**\s*$")
     for chunk in blocks[1:]:
         head = chunk.strip()
         m_date = re.search(r"(?im)^\s*date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$", head)
         m_match = re.search(r"(?im)^\s*matchup:\s*([A-Z0-9]+@[A-Z0-9]+)\s*$", head)
-        m_p_home = re.search(r"(?im)^\s*p_home:\s*([0-9.]+)\s*$", head)
+        # Support lines like:
+        #   GAME: NYR @ STL — 2025-12-18 — Pre-game
+        # (league is inferred from filename when not present).
+        m_game_line = re.search(
+            r"(?im)^\s*game:\s*([A-Z0-9]+)\s*@\s*([A-Z0-9]+)\s*[—–-]\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\b",
+            head,
+        )
+        m_p_home = p_home_rx.search(head)
         m_winner = re.search(r"(?im)^\s*winner:\s*([A-Z0-9]+)\s*$", head)
         m_league = re.search(r"(?im)^\s*league:\s*([A-Za-z]+)\s*$", head)
-        if not (m_date and m_match):
+        if not ((m_date and m_match) or m_game_line):
             continue
-        date_str = m_date.group(1).strip()
+        date_str = m_date.group(1).strip() if (m_date and m_match) else str(m_game_line.group(3)).strip()
         league = normalize_league(m_league.group(1)) if m_league else (league_hint or None)
         if not league:
             continue
 
-        away_raw, home_raw = m_match.group(1).strip().upper().split("@", 1)
+        if m_date and m_match:
+            away_raw, home_raw = m_match.group(1).strip().upper().split("@", 1)
+        else:
+            away_raw = str(m_game_line.group(1)).strip().upper()
+            home_raw = str(m_game_line.group(2)).strip().upper()
         away = normalize_team(away_raw, league)
         home = normalize_team(home_raw, league)
         if not away or not home:
@@ -594,11 +615,22 @@ def ingest_file(
     force: bool,
 ) -> Dict:
     text = raw_path.read_text(encoding="utf-8")
-    parsed = parse_helios_blocks(text, raw_path)
-    if not parsed:
-        parsed = parse_legacy_helios_prediction_headers(text, raw_path)
-    if not parsed:
-        parsed = parse_compact_prediction_headers(text, raw_path)
+    # Some raw files contain a mix of formats. Merge all deterministic parses
+    # before falling back to an LLM parser.
+    parsed = []
+    parsed.extend(parse_helios_blocks(text, raw_path))
+    parsed.extend(parse_legacy_helios_prediction_headers(text, raw_path))
+    parsed.extend(parse_compact_prediction_headers(text, raw_path))
+    # De-dup by (date, league, matchup, model_label) preserving first occurrence.
+    deduped: List[ParsedGame] = []
+    seen = set()
+    for g in parsed:
+        key = (g.date, g.league, g.matchup, (g.model_label or "").strip().lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(g)
+    parsed = deduped
     used_llm = False
     if not parsed:
         try:

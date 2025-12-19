@@ -1,0 +1,64 @@
+{
+  "bootstrap_sims": 2000,
+  "confidence_level": 0.9,
+  "league": "nba",
+  "min_games": 10,
+  "perf_by_model": {
+    "gemini": {
+      "model": "gemini",
+      "n": 25,
+      "net_pnl": 2.4499999999999997,
+      "risked": 8.09,
+      "roi": 0.30284301606922126,
+      "roi_lb90": -0.0726937269372695
+    },
+    "gpt": {
+      "model": "gpt",
+      "n": 7,
+      "net_pnl": 1.4099999999999997,
+      "risked": 2.46,
+      "roi": 0.5731707317073169,
+      "roi_lb90": -0.13302752293577982
+    },
+    "grok": {
+      "model": "grok",
+      "n": 41,
+      "net_pnl": 4.699999999999999,
+      "risked": 11.57,
+      "roi": 0.40622299049265337,
+      "roi_lb90": 0.08687289804311071
+    },
+    "market_proxy": {
+      "model": "market_proxy",
+      "n": 1,
+      "net_pnl": -0.17,
+      "risked": 0.16,
+      "roi": -1.0625,
+      "roi_lb90": -1.0625
+    },
+    "moneypuck": {
+      "model": "moneypuck",
+      "n": 0,
+      "net_pnl": 0.0,
+      "risked": 0.0,
+      "roi": 0.0,
+      "roi_lb90": 0.0
+    },
+    "v2c": {
+      "model": "v2c",
+      "n": 21,
+      "net_pnl": 3.5399999999999996,
+      "risked": 6.08,
+      "roi": 0.582236842105263,
+      "roi_lb90": 0.1319602768187079
+    }
+  },
+  "primary_models": [
+    "grok",
+    "v2c"
+  ],
+  "secondary_models": [
+    "gemini"
+  ],
+  "trained_through": "2025-12-17"
+}

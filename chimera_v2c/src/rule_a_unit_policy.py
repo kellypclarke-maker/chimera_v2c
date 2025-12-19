@@ -24,6 +24,8 @@ class TeamBidAsk:
     ask: float
     mid: float
     spread: float
+    event_ticker: Optional[str] = None
+    market_ticker: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -35,6 +37,9 @@ class RuleAGame:
     price_away: float  # executed away YES price (ask + slippage, clamped)
     home_win: Optional[int]  # 1 home win, 0 away win, None unknown
     probs: Dict[str, float]  # p_home by model/proxy
+    event_ticker: Optional[str] = None
+    market_ticker_home: Optional[str] = None
+    market_ticker_away: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -164,6 +169,8 @@ def load_bidask_csv(path: Path) -> Dict[SnapshotKey, TeamBidAsk]:
             yes_team = str(r.get("yes_team", "")).strip().upper()
             if not date or not league or not matchup or not yes_team:
                 continue
+            event_ticker = str(r.get("event_ticker") or "").strip() or None
+            market_ticker = str(r.get("market_ticker") or "").strip() or None
             try:
                 bid = float(r["yes_bid_cents"]) / 100.0
                 ask = float(r["yes_ask_cents"]) / 100.0
@@ -171,7 +178,14 @@ def load_bidask_csv(path: Path) -> Dict[SnapshotKey, TeamBidAsk]:
                 spread = float(r["spread"])
             except Exception:
                 continue
-            out[(date, league, matchup, yes_team)] = TeamBidAsk(bid=bid, ask=ask, mid=mid, spread=spread)
+            out[(date, league, matchup, yes_team)] = TeamBidAsk(
+                bid=bid,
+                ask=ask,
+                mid=mid,
+                spread=spread,
+                event_ticker=event_ticker,
+                market_ticker=market_ticker,
+            )
         return out
 
 
@@ -202,6 +216,7 @@ def iter_rule_a_games(
         if mid_home <= 0.5:
             continue
         price_away = _clamp_price(float(away_row.ask) + slip)
+        event_ticker = away_row.event_ticker or home_row.event_ticker
         home_win: Optional[int]
         if g.home_win in (0.0, 1.0):
             home_win = int(g.home_win)
@@ -217,6 +232,9 @@ def iter_rule_a_games(
                 price_away=price_away,
                 home_win=home_win,
                 probs=probs,
+                event_ticker=event_ticker,
+                market_ticker_home=home_row.market_ticker,
+                market_ticker_away=away_row.market_ticker,
             )
         )
     return out
@@ -242,20 +260,44 @@ def net_pnl_taker(*, contracts: int, price_away: float, home_win: int) -> Tuple[
     return gross, float(fees), risked
 
 
-def votes_for_game(g: RuleAGame, *, models: Sequence[str]) -> Tuple[int, List[str]]:
+def votes_for_game(
+    g: RuleAGame,
+    *,
+    models: Sequence[str],
+    vote_delta_default: float = 0.0,
+    vote_edge_default: float = 0.0,
+    vote_delta_by_model: Optional[Dict[str, float]] = None,
+    vote_edge_by_model: Optional[Dict[str, float]] = None,
+) -> Tuple[int, List[str]]:
     """
-    Baseline Rule-A vote rule (delta vs Kalshi home mid):
-      vote_m = 1 if p_model_home < mid_home else 0
+    Fee-aware Rule-A vote rule used for "BLIND + VOTES agg" sizing.
+
+    A model m casts a vote when BOTH conditions pass:
+      1) (mid_home - p_home_m) >= vote_delta_m
+      2) edge_net_m >= vote_edge_m
+
+    Where:
+      - vote_delta_m defaults to vote_delta_default and can be overridden per-model.
+      - vote_edge_m defaults to vote_edge_default and can be overridden per-model.
+      - edge_net_m is fee-aware expected net per contract for buying AWAY YES at price_away.
     """
+    delta_by_model = dict(vote_delta_by_model or {})
+    edge_by_model = dict(vote_edge_by_model or {})
     votes = 0
     triggering: List[str] = []
     for m in models:
         p = g.probs.get(str(m))
         if p is None:
             continue
-        if float(p) < float(g.mid_home):
-            votes += 1
-            triggering.append(str(m))
+        delta_thr = float(delta_by_model.get(str(m), float(vote_delta_default)))
+        if (float(g.mid_home) - float(p)) < delta_thr:
+            continue
+        edge_thr = float(edge_by_model.get(str(m), float(vote_edge_default)))
+        edge = expected_edge_net_per_contract(p_home=float(p), price_away=float(g.price_away))
+        if float(edge) < edge_thr:
+            continue
+        votes += 1
+        triggering.append(str(m))
     triggering.sort()
     return int(votes), triggering
 

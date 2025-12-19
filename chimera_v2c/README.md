@@ -7,6 +7,7 @@ This directory contains the active v2c maker-only engine: stats + market + injur
   - `--llm-injuries` runs an OpenAI-based injury impact merge from the ESPN digest into `chimera_v2c/data/injury_adjustments.json` (requires `OPENAI_API_KEY`).
 - Log plan: `PYTHONPATH=. python chimera_v2c/tools/log_plan.py --config <league_config> --date YYYY-MM-DD`
 - Optional execute: `PYTHONPATH=. python chimera_v2c/tools/execute_plan.py --config <league_config> --date YYYY-MM-DD --dry-run`
+- Rule A (taker) track (separate from maker-only v2c): `PYTHONPATH=. python chimera_v2c/tools/run_rule_a_daily.py plan|reconcile --date YYYY-MM-DD` (see `chimera_v2c/tools/README.md`).
 - Refresh factors/ratings: ETLs under `chimera_v2c/tools/` (e.g., `etl_nba_history.py`, `etl_nhl_factors.py`, `elo_builder*.py`, `train_ff_model.py`).
 - Calibration/backtest: `fit_calibration.py`, `nba_backtest.py`, `nhl_backtest.py`.
   - For v2c per-league calibration from daily ledgers (e.g., NBA), use

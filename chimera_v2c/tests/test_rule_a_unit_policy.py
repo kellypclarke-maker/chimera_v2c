@@ -10,6 +10,7 @@ from chimera_v2c.src.rule_a_unit_policy import (
     select_unit_scale,
     signal_metrics,
     units_for_game,
+    votes_for_game,
 )
 
 
@@ -130,3 +131,17 @@ def test_rule_a_unit_policy_select_unit_scale_can_choose_profitable_scale() -> N
     }
     best = select_unit_scale(train, models=models, unit_scales=[0.10], cap_units=10, roi_floor_mult=0.9)
     assert abs(best - 0.10) < 1e-12
+
+
+def test_rule_a_unit_policy_votes_for_game_is_fee_aware() -> None:
+    # Make p_home < mid_home but edge_net negative -> should NOT vote.
+    g_no = _g(mid_home=0.80, price_away=0.70, probs={"m": 0.60}, home_win=0)
+    votes_no, models_no = votes_for_game(g_no, models=["m"])
+    assert votes_no == 0
+    assert models_no == []
+
+    # Make p_home < mid_home and edge_net positive -> should vote.
+    g_yes = _g(mid_home=0.80, price_away=0.40, probs={"m": 0.40}, home_win=0)
+    votes_yes, models_yes = votes_for_game(g_yes, models=["m"])
+    assert votes_yes == 1
+    assert models_yes == ["m"]

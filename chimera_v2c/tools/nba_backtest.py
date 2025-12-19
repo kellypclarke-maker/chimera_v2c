@@ -131,6 +131,9 @@ def load_plans(date_range: Tuple[str, str], league: str, *, include_all_sides: b
     by_game: Dict[Tuple[str, str], List[PlanRow]] = defaultdict(list)
     league_norm = league.lower()
     for entry in data:
+        strategy = str(entry.get("strategy") or "").strip().lower()
+        if strategy and strategy != "v2c":
+            continue
         d = entry.get("date")
         if not d or d < start or d > end:
             continue

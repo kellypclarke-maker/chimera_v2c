@@ -1,5 +1,6 @@
 # kalshi_utils.py
 import os
+from pathlib import Path
 import time
 import json
 import base64
@@ -26,7 +27,13 @@ def has_private_creds() -> bool:
     key_id = (os.getenv("KALSHI_API_KEY_ID") or "").strip()
     pem_str = (os.getenv("KALSHI_API_PRIVATE_KEY") or "").strip()
     key_path = (os.getenv("KALSHI_PRIVATE_KEY_PATH") or "").strip()
-    return bool(key_id and (pem_str or key_path))
+    if not key_id:
+        return False
+    if pem_str:
+        return True
+    if key_path and Path(key_path).exists():
+        return True
+    return False
 
 
 def _normalize_base(url: str) -> str:

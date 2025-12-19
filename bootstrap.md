@@ -41,6 +41,7 @@ Treat this protocol as the default behavior for any new shell/session in this re
 ## 1. System Overview (One Screen)
 
 - **Name / scope:** Chimera v2c (Aeternus v2) — maker‑only, pre‑game engine for Kalshi game markets (NBA, NHL, NFL).
+- **Related workflow (separate track):** Rule A (taker) “home-favorite fade” research + OOS logging lives under `chimera_v2c/tools/` (does not place orders; default outputs go to `reports/execution_logs/`).
 - **Goal:** Turn calibrated win probabilities + market context into conservative, maker‑only plans and optional executions.
 - **Core doctrine:**
   - Stats + market ensemble (Elo, Four Factors/process metrics, market mids/sharps, injuries/news refresh as mandatory preflight, calibration).
@@ -180,6 +181,9 @@ When a fresh instance is started and pointed at this repo, follow this sequence:
 - **Run daily planner (per league)**:
   - `PYTHONPATH=. python chimera_v2c/tools/run_daily.py --config <league_config> --date YYYY-MM-DD`
   - Optional: add `--llm-injuries` to apply LLM-derived injury deltas from the ESPN digest (requires `OPENAI_API_KEY`).
+- **Rule A (taker) daily wrapper (planning + reconciliation; no execution)**:
+  - `PYTHONPATH=. python chimera_v2c/tools/run_rule_a_daily.py plan --date YYYY-MM-DD --leagues nba,nhl --write-research-queue`
+  - `PYTHONPATH=. python chimera_v2c/tools/run_rule_a_daily.py reconcile --date YYYY-MM-DD --leagues nba,nhl`
 - **Log and (optionally) execute**:
   - `PYTHONPATH=. python chimera_v2c/tools/log_plan.py --config <league_config> --date YYYY-MM-DD`
   - `PYTHONPATH=. python chimera_v2c/tools/execute_plan.py --config <league_config> --date YYYY-MM-DD --dry-run`
